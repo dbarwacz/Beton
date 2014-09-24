@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BETON!</string>
+    <string name="title_activity_main">BETON!</string>
+    <string name="add_beton">I\'ve just seen BETON!</string>
+    <string name="your_name">Your name (optional)</string>
+    <string name="title">Beton description for others</string>
+    <string name="beton_ahead">Beton ahead!</string>
+    <string name="get_ready">Prepare yourself for next Beton in </string>
+    <string name="add_at_this_position">Add beton at this position?</string>
+
+</resources>

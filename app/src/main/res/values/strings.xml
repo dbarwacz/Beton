@@ -9,5 +9,8 @@
     <string name="beton_ahead">Beton ahead!</string>
     <string name="get_ready">Prepare yourself for next Beton in </string>
     <string name="add_at_this_position">Add beton at this position?</string>
+    <string name="google_maps_key">TODO</string>
+    <string name="parse_client_id">TODO</string>
+    <string name="parse_client_secret">TODO</string>
 
 </resources>

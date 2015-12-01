@@ -5,7 +5,7 @@ android {
         checkReleaseBuilds false
     }
     signingConfigs {
-        debug {
+        release {
             keyAlias 'cointica'
             keyPassword 'cointica'
             storeFile file('../cointica.jks')
@@ -23,8 +23,6 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     productFlavors {

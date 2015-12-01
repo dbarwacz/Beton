@@ -12,5 +12,6 @@
     <string name="google_maps_key">TODO</string>
     <string name="parse_client_id">TODO</string>
     <string name="parse_client_secret">TODO</string>
+    <string name="toggle_background">Enable background</string>
 
 </resources>

@@ -6,12 +6,15 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.app.TaskStackBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -38,7 +41,7 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
 
     public static final int MILLISECONDS_PER_SECOND = 1000;
     // Update frequency in seconds
-    public static final int UPDATE_INTERVAL_IN_SECONDS = 60*5;
+    public static final int UPDATE_INTERVAL_IN_SECONDS = 60 * 5;
     // Update frequency in milliseconds
     public static final long UPDATE_INTERVAL = MILLISECONDS_PER_SECOND * UPDATE_INTERVAL_IN_SECONDS;
     // The fastest update frequency, in seconds
@@ -51,6 +54,7 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
     private LocationRequest mLocationRequest;
     private List<ParseObject> mSeenBetons = new ArrayList<ParseObject>();
     private static List<ParseObject> sList = new ArrayList<ParseObject>();
+    private static boolean isEnabled;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -66,6 +70,8 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         sLocationClient.connect();
 
+        switchOperationReceiver = new SwitchOperationModeReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(switchOperationReceiver, FILTER);
         return (START_NOT_STICKY);
     }
 
@@ -74,6 +80,25 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
     public void onDestroy() {
         Log.i("Service", "onDestroy");
         sLocationClient.disconnect();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(switchOperationReceiver);
+        switchOperationReceiver = null;
+
+    }
+
+    public static final String KEY_OPERATION_MODE = "operationMode";
+    public static final String ACTION = BuildConfig.APPLICATION_ID + "changeOperationMode";
+    private static final IntentFilter FILTER = new IntentFilter(ACTION);
+    private BroadcastReceiver switchOperationReceiver;
+
+    private class SwitchOperationModeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            isEnabled = intent.getBooleanExtra(KEY_OPERATION_MODE, false);
+            if (!isEnabled) {
+                stopSelf();
+            }
+        }
 
     }
 
@@ -83,7 +108,7 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
     }
 
     public void runNotification() {
-        if(sList!=null&&sList.size()>0) {
+        if (sList != null && sList.size() > 0) {
             Location loc = sLocationClient.getLastLocation();
 
             ParseGeoPoint location, userLocation = new ParseGeoPoint(loc.getLatitude(), loc.getLongitude());
@@ -112,19 +137,11 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
             NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this)
                     .setContentTitle(getResources().getString(R.string.beton_ahead))
                     .setContentText(getResources().getString(R.string.get_ready) + " " +
-                            String.format("%.1f",record) +
-                            " km")
-                    //.setColor(getResources().getColor(R.color.theme_primary))
-                    // Note: setColor() is available in the support lib v21+.
-                    // We commented it out because we want the source to compile
-                    // against support lib v20. If you are using support lib
-                    // v21 or above on Android L, uncomment this line.
-                    .setTicker(getResources().getString(R.string.beton_ahead)).setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
-                            //            .setSmallIcon(R.drawable.ic_stat_notification)
-                    .setContentIntent(pi).setSmallIcon(R.drawable.beton).setPriority(Notification
-                            .PRIORITY_DEFAULT)
-                            //            .setLocalOnly(true) // make it local to the phone
-                            //            .setDeleteIntent(dismissalPendingIntent)
+                            String.format("%.1f", record) + " km")
+                    .setTicker(getResources().getString(R.string.beton_ahead))
+                    .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE)
+                    .setContentIntent(pi).setSmallIcon(R.drawable.beton)
+                    .setPriority(Notification.PRIORITY_DEFAULT)
                     .setAutoCancel(true);
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -180,7 +197,7 @@ public class BetonUpdateService extends Service implements GooglePlayServicesCli
         );
     }
 
-    private void scheduleNotification(ParseObject object){
+    private void scheduleNotification(ParseObject object) {
         sList.add(object);
     }
 

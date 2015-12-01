@@ -10,7 +10,10 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -131,6 +134,30 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
         setUpMapIfNeeded();
 
         //        stopService(new Intent(this, BetonUpdateService.class));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.master_switch, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.masterSwitch) {
+            boolean shouldBeEnabled = item.isChecked();
+            if (shouldBeEnabled) {
+                Intent i = new Intent(this, BetonUpdateService.class);
+
+                startService(i);
+            } else {
+                Intent intent = new Intent(BetonUpdateService.ACTION);
+                intent.putExtra(BetonUpdateService.KEY_OPERATION_MODE, false);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

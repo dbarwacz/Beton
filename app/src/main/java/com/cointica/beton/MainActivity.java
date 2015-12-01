@@ -186,7 +186,7 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                DialogFragment dialog = new AddBetonDialogFragment(latLng);
+                DialogFragment dialog = AddBetonDialogFragment.newInstance(latLng);
                 dialog.show(getFragmentManager(), "Another beton fragment ragment");
             }
         });
@@ -359,18 +359,24 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
 
     public static class AddBetonDialogFragment extends DialogFragment {
 
+        private static final String KEY_LOC = "keyLoc";
         private LatLng loc;
 
         public AddBetonDialogFragment() {
 
         }
 
-        AddBetonDialogFragment(LatLng loc) {
-            this.loc = loc;
+        public static AddBetonDialogFragment newInstance(LatLng loc) {
+            Bundle args = new Bundle();
+
+            AddBetonDialogFragment instance = new AddBetonDialogFragment();
+            instance.setArguments(args);
+            return instance;
         }
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            loc = getArguments().getParcelable(KEY_LOC);
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             View view = View.inflate(getActivity(), R.layout.content_view, null);
